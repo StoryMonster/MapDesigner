@@ -55,7 +55,6 @@ class DisplayCanvas(Canvas):
     def handle_save_project(self, content):
         if content is None or content["filepath"] is None: return
         mapData = MapData(self.row, self.col, deepcopy(self.gridWeights),  deepcopy(self.imgBytes))
-        messagebox.showinfo("info", f"len = {len(self.imgBytes)}")
         DataParser().save_to_file(content["filepath"], mapData)
         evtDispatcher.dispatch(EvtIds.EVT_CONTENT_CHANGED, {"isChanged": False})
 
