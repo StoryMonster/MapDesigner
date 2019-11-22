@@ -1,4 +1,5 @@
 import os
+from copy import deepcopy
 from tkinter import Menu, filedialog, Frame, StringVar, LEFT, Button, Entry, Toplevel, messagebox, Label
 from model.constances import PROJECT_SUFFIX
 from model.data_parser import DataParser
@@ -16,8 +17,10 @@ class FileSubmenu(Menu):
     def open_project(self):
         filename = filedialog.askopenfilename(initialdir = ".", title = "Select project", filetypes = (("mg files","*.mg"), ))
         mapdata = DataParser().parse_from_file(filename)
-        if mapdata is not None:
-            evtDispatcher.dispatch(EvtIds.EVT_INFORM_GET_MAP_DATA, {"mapdata": mapdata})
+        if mapdata is None:
+            messagebox.showerror("error", "open project error!")
+            return
+        evtDispatcher.dispatch(EvtIds.EVT_INFORM_GET_MAP_DATA, {"mapdata": deepcopy(mapdata)})
         evtDispatcher.dispatch(EvtIds.EVT_GET_PROJECT_NAME, {"path": filename})
         evtDispatcher.dispatch(EvtIds.EVT_PROJECT_LOADED, None)
     

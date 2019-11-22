@@ -7,6 +7,7 @@
 import math
 from copy import deepcopy
 from collections import namedtuple
+from .constances import EMPTY_NUMBER
 
 
 MapData = namedtuple("MapData", ["row", "col", "gridWeights", "imgData"])
@@ -21,19 +22,19 @@ class DataParser:
         try:
             row = data[0]
             col = data[1]
-            gridWeights = [0 for _ in range(col * row)]
-            sep = int(row * col / 2 + 1 if (row * col) % 2 == 0 else (row * col + 1) / 2 + 1)
-            counter = 0
-            for b in data[2:sep+1]:
-                if counter < col * row:
-                    gridWeights[counter] = (b & 0xf0) >> 4
-                    counter += 1
-                if counter < col * row:
-                    gridWeights[counter] = b & 0x0f
-                    counter += 1
-            return MapData(row, col, deepcopy(gridWeights), deepcopy(data[sep+1:]))
+            gridWeights = [EMPTY_NUMBER for _ in range(col * row)]
+            wLen = int(row * col / 2) if (row * col) % 2 == 0 else int((row * col + 1)/ 2)
+            if wLen != 0:
+                counter = 0
+                for b in data[2:wLen+2]:
+                    if counter < col * row:
+                        gridWeights[counter] = (b & 0xf0) >> 4
+                        counter += 1
+                    if counter < col * row:
+                        gridWeights[counter] = b & 0x0f
+                        counter += 1
+            return MapData(row, col, deepcopy(gridWeights), deepcopy(data[wLen+2:]))
         except Exception as e:
-            print(str(e))
             return None
 
     def save_to_file(self, filepath, mapdata):

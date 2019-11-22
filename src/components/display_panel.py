@@ -55,6 +55,7 @@ class DisplayCanvas(Canvas):
     def handle_save_project(self, content):
         if content is None or content["filepath"] is None: return
         mapData = MapData(self.row, self.col, deepcopy(self.gridWeights),  deepcopy(self.imgBytes))
+        messagebox.showinfo("info", f"len = {len(self.imgBytes)}")
         DataParser().save_to_file(content["filepath"], mapData)
         evtDispatcher.dispatch(EvtIds.EVT_CONTENT_CHANGED, {"isChanged": False})
 
@@ -68,10 +69,13 @@ class DisplayCanvas(Canvas):
         self.clear_path()
         self.clear_grid_lines()
         self.show_background_image(content["imgpath"])
+        self.row, self.col = 0, 0
+        self.gridWeights = []
         evtDispatcher.dispatch(EvtIds.EVT_CONTENT_CHANGED, {"isChanged": True})
 
     def handle_clear_numbers(self, content):
         self.clear_all_numbers()
+        self.gridWeights = [EMPTY_NUMBER for _ in range(self.row * self.col)]
         evtDispatcher.dispatch(EvtIds.EVT_CONTENT_CHANGED, {"isChanged": True})
 
     def handle_clear_path(self, content):
@@ -116,10 +120,11 @@ class DisplayCanvas(Canvas):
         if row <= 0 or col <= 0:
             messagebox.showerror("Error", "Row and Col should all be positive integers")
             return
-        if row != self.row or col != self.col:
-            self.clear_all_numbers()
+
         self.clear_grid_lines()
+        self.clear_all_numbers()
         self.row, self.col = row, col
+        self.gridWeights = [EMPTY_NUMBER for _ in range(self.row * self.col)]
         self.widthPerGrid = self.width / self.col
         self.heightPerGrid = self.height / self.row
         for i in range(self.row):
@@ -128,15 +133,12 @@ class DisplayCanvas(Canvas):
             self.create_line(i*self.widthPerGrid, 0, i*self.widthPerGrid, self.height, tag=LINE_GRID_TAG)
 
     def clear_all_numbers(self):
-        self.gridWeights = [EMPTY_NUMBER for _ in range(self.row * self.col)]
         for i in range(self.row):
             for j in range(self.col):
                 self.delete("num(%d,%d)" % (i, j))
 
     def clear_grid_lines(self):
         self.delete(LINE_GRID_TAG)
-        self.row = 0
-        self.col = 0
 
     def put_number_in_grid(self, num, row, col):
         offset = int(row * self.col + col)
@@ -203,7 +205,7 @@ class DisplayCanvas(Canvas):
 
     def apply_map_data(self, mapdata):
         self.gridWeights = deepcopy(mapdata.gridWeights)
-        self.show_background_image_from_bytes(mapdata.imgData)
+        self.show_background_image_from_bytes(deepcopy(mapdata.imgData))
         if mapdata.row > 0 and mapdata.col > 0:
             self.draw_grid(mapdata.row, mapdata.col)
         row, col = 0, 0

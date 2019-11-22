@@ -10,4 +10,4 @@ class AboutSubmenu(Menu):
         self.add_command(label="about product", command=self.about_product)
     
     def about_product(self):
-        messagebox.showinfo("Msg Designer", "vesion: %s\ncontactor: %s" % (APP_VERSION, CONTACTOR))
+        messagebox.showinfo("Msg Designer", "version: %s\ncontactor: %s" % (APP_VERSION, CONTACTOR))
